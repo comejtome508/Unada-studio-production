@@ -1,0 +1,15 @@
+{
+  "version": "1.1",
+  "entries": {
+    "onboarding-v2": {
+      "id": "onboarding-v2",
+      "name": "Unada Onboarding V2: Build Your Home",
+      "phase": "plan",
+      "status": "active",
+      "trustLevelAtStart": "L2",
+      "createdAt": "2026-05-27T21:00:12.022Z",
+      "updatedAt": "2026-05-27T21:00:28.530Z"
+    }
+  },
+  "updatedAt": "2026-05-27T21:00:28.530Z"
+}

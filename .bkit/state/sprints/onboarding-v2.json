@@ -1,0 +1,158 @@
+{
+  "id": "onboarding-v2",
+  "name": "Unada Onboarding V2: Build Your Home",
+  "version": "1.1",
+  "phase": "plan",
+  "status": "active",
+  "context": {
+    "WHY": "",
+    "WHO": "",
+    "RISK": "",
+    "SUCCESS": "",
+    "SCOPE": ""
+  },
+  "features": [
+    "welcome",
+    "questions",
+    "transitions",
+    "reveal",
+    "backend"
+  ],
+  "config": {
+    "budget": 1000000,
+    "phaseTimeoutHours": 4,
+    "maxIterations": 5,
+    "matchRateTarget": 100,
+    "matchRateMinAcceptable": 90,
+    "dashboardMode": "session-start",
+    "manual": false
+  },
+  "autoRun": {
+    "enabled": true,
+    "scope": null,
+    "trustLevelAtStart": "L2",
+    "startedAt": null,
+    "lastAutoAdvanceAt": "2026-05-27T21:00:20.855Z"
+  },
+  "autoPause": {
+    "armed": [
+      "QUALITY_GATE_FAIL",
+      "ITERATION_EXHAUSTED",
+      "BUDGET_EXCEEDED",
+      "PHASE_TIMEOUT"
+    ],
+    "lastTrigger": null,
+    "pauseHistory": []
+  },
+  "phaseHistory": [
+    {
+      "phase": "plan",
+      "enteredAt": "2026-05-27T21:00:20.855Z",
+      "exitedAt": null,
+      "durationMs": null
+    }
+  ],
+  "iterateHistory": [],
+  "docs": {
+    "masterPlan": null,
+    "prd": null,
+    "plan": null,
+    "design": null,
+    "iterate": null,
+    "qa": null,
+    "report": null
+  },
+  "featureMap": {},
+  "qualityGates": {
+    "M1_matchRate": {
+      "current": null,
+      "threshold": 90,
+      "passed": null
+    },
+    "M2_codeQualityScore": {
+      "current": null,
+      "threshold": 80,
+      "passed": null
+    },
+    "M3_criticalIssueCount": {
+      "current": 0,
+      "threshold": 0,
+      "passed": true
+    },
+    "M4_apiComplianceRate": {
+      "current": null,
+      "threshold": 95,
+      "passed": null
+    },
+    "M7_conventionCompliance": {
+      "current": null,
+      "threshold": 90,
+      "passed": null
+    },
+    "M8_designCompleteness": {
+      "current": null,
+      "threshold": 85,
+      "passed": null
+    },
+    "M10_pdcaCycleTimeHours": {
+      "current": null,
+      "threshold": 40,
+      "passed": null
+    },
+    "S1_dataFlowIntegrity": {
+      "current": null,
+      "threshold": 100,
+      "passed": null
+    },
+    "S2_featureCompletion": {
+      "current": 0,
+      "threshold": 100,
+      "passed": false
+    },
+    "S3_velocity": {
+      "current": null,
+      "threshold": null,
+      "passed": null
+    },
+    "S4_archiveReadiness": {
+      "current": false,
+      "threshold": true,
+      "passed": false
+    }
+  },
+  "annotations": [],
+  "kpi": {
+    "matchRate": null,
+    "criticalIssues": 0,
+    "qaPassRate": null,
+    "dataFlowIntegrity": null,
+    "featuresTotal": 5,
+    "featuresCompleted": 0,
+    "featureCompletionRate": 0,
+    "cumulativeTokens": 0,
+    "cumulativeIterations": 0,
+    "sprintCycleHours": null
+  },
+  "createdAt": "2026-05-27T21:00:12.022Z",
+  "startedAt": null,
+  "archivedAt": null,
+  "lastGateFailure": {
+    "phase": "plan",
+    "toPhase": "design",
+    "gateResults": {
+      "allPassed": false,
+      "phase": "plan",
+      "results": {
+        "M8": {
+          "gateKey": "M8",
+          "current": null,
+          "threshold": 85,
+          "passed": false,
+          "reason": "not_measured"
+        }
+      }
+    },
+    "reportPath": "docs/03-analysis/onboarding-v2-gate-fail-plan-2026-05-27T21-00-28-527Z.md",
+    "timestamp": "2026-05-27T21:00:28.527Z"
+  }
+}

@@ -1,0 +1,18 @@
+:root {
+  --unada-forest: #0D7A52;
+  --unada-sun: #F2C94C;
+  --unada-deep: #0D2B1E;
+  --unada-meadow: #A8D4BE;
+  --unada-pale-sun: #FAECC8;
+  --unada-off-white: #F7F4EE;
+  --unada-fg1: #0D2B1E;
+  --unada-fg2: #3A4A42;
+  --unada-fg3: #6B7A73;
+  --unada-border: rgba(13, 43, 30, 0.12);
+  --unada-forest-tint: rgba(13, 122, 82, 0.06);
+  --unada-meadow-tint: rgba(168, 212, 190, 0.18);
+  --unada-danger: #BA1A1A;
+  --unada-warning-bg: #FFFBEC;
+  --unada-warning-border: rgba(200, 167, 60, 0.5);
+  --unada-warning-text: #7A5C00;
+}

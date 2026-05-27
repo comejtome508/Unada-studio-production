@@ -1,0 +1,17 @@
+# bkit runtime (session-local, not for version control)
+.bkit/runtime/
+.bkit/audit/
+.bkit/checkpoints/
+.bkit/decisions/
+.bkit/workflows/
+
+# Keep sprint/pdca state
+# .bkit/state/ → committed
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
