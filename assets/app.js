@@ -142,14 +142,45 @@ function goRevealBack() {
 }
 
 /* ── Input Handlers ──────────────────────────────────────── */
+/* ── Lightweight in-place update (no screen-enter replay) ─── */
+// Called on within-question selection changes so the slide-in animation
+// doesn't retrigger. Only updates the parts of the DOM that actually changed.
+function updateSelection() {
+  var idx = state.screenIdx;
+  if (idx < 0 || idx > 30) { render(); return; }
+  var screen = SCREENS[idx];
+  if (!screen || screen.type !== 'question') { render(); return; }
+  var q = QUESTIONS[screen.qIdx];
+
+  // 1. Re-render the scroll zone (option selected states, flag boxes, cond sub-inputs)
+  var scrollZone = document.querySelector('.scroll-zone');
+  if (!scrollZone) { render(); return; }
+  scrollZone.innerHTML =
+    '<div class="category-chip">' + esc(q.category) + '</div>' +
+    '<h2 class="question-text">' + esc(q.question) + '</h2>' +
+    (q.hint ? '<p class="question-hint">' + esc(q.hint) + '</p>' : '') +
+    renderInputComponent(q);
+
+  // 2. Update house SVG and progress bar fill
+  var answered = getQuestionsAnswered();
+  var houseSvgWrap = document.querySelector('.house-svg-wrap');
+  if (houseSvgWrap) houseSvgWrap.innerHTML = HOUSE.render(answered);
+  var progressFill = document.querySelector('.progress-bar-fill');
+  if (progressFill) progressFill.style.width = ((answered / 29) * 100) + '%';
+
+  // 3. Swap footer (Next button enabled/disabled state may change)
+  var footerEl = document.querySelector('.footer-zone');
+  if (footerEl) footerEl.outerHTML = renderFooter(q, idx);
+}
+
 function selectRadio(key, value) {
   state.answers[key] = value;
-  render();
+  updateSelection();
 }
 
 function selectPill(key, value) {
   state.answers[key] = value;
-  render();
+  updateSelection();
 }
 
 function toggleChip(key, value) {
@@ -160,7 +191,7 @@ function toggleChip(key, value) {
   } else {
     state.answers[key] = arr.filter(function(v) { return v !== value; });
   }
-  render();
+  updateSelection();
 }
 
 function toggleNeighborhood(value) {
@@ -171,7 +202,7 @@ function toggleNeighborhood(value) {
   } else if (arr.length < 3) {
     state.answers['neighborhoods'] = arr.concat([value]);
   }
-  render();
+  updateSelection();
 }
 
 function setSlider(key, value) {
@@ -207,7 +238,7 @@ function setSubInput(key, value) {
 
 function toggleWeightChip(value) {
   state.answers.petWeight = value;
-  render();
+  updateSelection();
 }
 
 function togglePrivacy() {
@@ -222,6 +253,7 @@ function togglePrivacy() {
   }
   if (cta) {
     cta.classList.toggle('disabled', !state.privacyChecked);
+    cta.disabled = !state.privacyChecked;
   }
 }
 
