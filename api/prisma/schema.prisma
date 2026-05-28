@@ -1,0 +1,40 @@
+// Prisma schema — Unada Backend
+// DB: PostgreSQL (Railway)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Agent {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions OnboardingSession[]
+}
+
+model OnboardingSession {
+  id              String   @id @default(uuid())
+  onboardingToken String   @unique
+  agentId         String
+  agent           Agent    @relation(fields: [agentId], references: [id])
+  clientEmail     String?
+  // pending | partial_1 | partial_2 | complete
+  status          String   @default("pending")
+  // JSONB — 29개 질문 답변 저장
+  // PII 필드(creditScore, immigrationStatus, employmentStatus)는 앱 레벨 암호화 후 저장
+  answers         Json     @default("{}")
+  expiresAt       DateTime
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([onboardingToken])
+  @@index([agentId])
+}

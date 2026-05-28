@@ -1,0 +1,62 @@
+name: Deploy — Prod (Railway)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'api/**'
+
+jobs:
+  deploy-prod:
+    name: Deploy to Railway Prod
+    runs-on: ubuntu-latest
+    # GitHub Environment에 Required reviewers 설정 권장
+    environment: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: api
+
+      - name: Run tests (prod gate)
+        run: npm test
+        working-directory: api
+        env:
+          DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
+          PII_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
+          NODE_ENV: test
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Run DB migrations (prod) — 먼저 실행
+        run: railway run --service unada-api-prod npm run db:deploy
+        working-directory: api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+
+      - name: Deploy to Railway Prod
+        run: railway up --service unada-api-prod --detach
+        working-directory: api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+
+      - name: Smoke test — health check
+        run: |
+          sleep 15
+          curl -f ${{ secrets.PROD_API_URL }}/api/health || exit 1
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "Prod deploy failed — consider manual rollback via Railway dashboard"
+          echo "Railway dashboard: https://railway.app/dashboard"

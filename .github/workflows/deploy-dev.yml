@@ -1,0 +1,36 @@
+name: Deploy — Dev (Railway)
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'api/**'
+
+jobs:
+  deploy-dev:
+    name: Deploy to Railway Dev
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway Dev
+        run: railway up --service unada-api-dev --detach
+        working-directory: api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+
+      - name: Run DB migrations (dev)
+        run: railway run --service unada-api-dev npm run db:deploy
+        working-directory: api
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_DEV }}
+
+      - name: Smoke test — health check
+        run: |
+          sleep 10
+          curl -f ${{ secrets.DEV_API_URL }}/api/health || exit 1

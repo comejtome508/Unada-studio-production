@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0",
+  "projectId": "unada-backend",
+  "projectName": "Unada Backend — Next.js API + PostgreSQL on Railway",
+  "features": [
+    "db-schema",
+    "token-auth",
+    "onboarding-api",
+    "railway-setup",
+    "cicd",
+    "frontend-integration"
+  ],
+  "sprints": [],
+  "dependencyGraph": {},
+  "trustLevel": "L2",
+  "context": {
+    "WHY": "",
+    "WHO": "",
+    "RISK": "",
+    "SUCCESS": "",
+    "SCOPE": ""
+  },
+  "generatedAt": "2026-05-28T20:20:33.419Z",
+  "updatedAt": "2026-05-28T20:20:33.419Z",
+  "masterPlanPath": "docs/01-plan/features/unada-backend.master-plan.md"
+}
