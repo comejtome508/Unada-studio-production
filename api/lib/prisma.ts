@@ -1,16 +1,14 @@
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
+import { PrismaNeon } from '@prisma/adapter-neon';
 
 function createPrismaClient() {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is not set');
   }
-  const adapter = new PrismaPg({ connectionString: databaseUrl });
-  return new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === 'development' ? ['error'] : ['error'],
-  });
+  // Neon serverless adapter — Vercel 환경에서 connection pooling 자동 처리
+  const adapter = new PrismaNeon({ connectionString });
+  return new PrismaClient({ adapter });
 }
 
 // Singleton pattern — Next.js hot reload 시 중복 인스턴스 방지
