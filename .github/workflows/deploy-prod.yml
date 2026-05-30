@@ -6,10 +6,6 @@ on:
     paths:
       - 'api/**'
 
-defaults:
-  run:
-    working-directory: api
-
 jobs:
   deploy-prod:
     name: Test + Vercel Production Deploy
@@ -27,18 +23,22 @@ jobs:
           cache-dependency-path: api/package-lock.json
 
       - name: Install dependencies
+        working-directory: api
         run: npm ci
 
       - name: Generate Prisma client
+        working-directory: api
         run: npm run db:generate
 
       - name: Run tests (prod gate)
+        working-directory: api
         run: npm test
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           PII_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
           NODE_ENV: test
 
+      # Vercel CLI는 레포 루트에서 실행 (Root Directory = api 설정이 Vercel 프로젝트에 있음)
       - name: Deploy to Vercel (Production)
         run: |
           npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
