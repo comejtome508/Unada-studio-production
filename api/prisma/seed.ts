@@ -39,7 +39,7 @@ async function main() {
   const agent = await prisma.agent.create({
     data: {
       id: agentId,
-      name: 'Jane Smith',
+      name: 'Jane Kim',
       email: 'jane@unada.ca',
       phone: '+1-416-555-0100',
     },
