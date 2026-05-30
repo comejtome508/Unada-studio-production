@@ -34,13 +34,13 @@ async function main() {
 
   // 에이전트 생성 (기존 Jane 삭제 후 지정된 UUID로 재생성 — 시드는 멱등성 보장)
   const agentId = process.env.AGENT_ID ?? randomUUID();
-  await prisma.onboardingSession.deleteMany({ where: { agent: { email: 'jane@unada.ca' } } });
-  await prisma.agent.deleteMany({ where: { email: 'jane@unada.ca' } });
+  await prisma.onboardingSession.deleteMany({ where: { agentId } });
+  await prisma.agent.deleteMany({ where: { id: agentId } });
   const agent = await prisma.agent.create({
     data: {
       id: agentId,
       name: 'Jane Kim',
-      email: 'jane@unada.ca',
+      email: 'unadarealestate@gmail.com',
       phone: '+1-416-555-0100',
     },
   });
