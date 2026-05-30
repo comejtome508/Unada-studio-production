@@ -832,15 +832,28 @@ function render() {
 }
 
 /* ── Init ────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', function() {
-  // URL ?token= 파싱 — Jane이 발급한 onboarding_token
+document.addEventListener('DOMContentLoaded', async function() {
+  // URL ?token= 파싱 — 이미 토큰이 있으면 바로 사용
   var params = new URLSearchParams(window.location.search);
   var token = params.get('token');
+
   if (token) {
     state.token = token;
+    render();
   } else {
-    state.tokenMissing = true;
-    console.warn('[Unada] No onboarding token in URL. API saves will be skipped.');
+    // 토큰 없음 → 공개 엔드포인트에서 자동 발급 (unadarealestate.com 직접 진입 시)
+    try {
+      var res = await fetch(API_URL + '/api/v1/start', { method: 'POST' });
+      var data = await res.json();
+      if (data.token) {
+        state.token = data.token;
+        // URL을 토큰으로 업데이트 (새로고침해도 유지)
+        var newUrl = window.location.pathname + '?token=' + data.token;
+        window.history.replaceState(null, '', newUrl);
+      }
+    } catch(e) {
+      console.warn('[Unada] Failed to auto-create session:', e);
+    }
+    render();
   }
-  render();
 });
