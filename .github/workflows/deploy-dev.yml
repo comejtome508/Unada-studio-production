@@ -5,10 +5,12 @@ on:
     branches: [develop]
     paths:
       - 'api/**'
+      - '.github/workflows/deploy-dev.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'api/**'
+      - '.github/workflows/deploy-dev.yml'
 
 jobs:
   test-and-preview:
