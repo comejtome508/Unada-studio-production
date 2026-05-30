@@ -10,6 +10,18 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { randomUUID } from 'crypto';
+import { fileURLToPath } from 'node:url';
+import * as path from 'node:path';
+import * as fs from 'node:fs';
+import { config as dotenvConfig } from 'dotenv';
+
+// .env.local 로드 (Prisma CLI / ts-node는 Next.js와 달리 자동 로드 안 함)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const envLocalPath = path.join(__dirname, '..', '.env.local');
+if (fs.existsSync(envLocalPath)) {
+  dotenvConfig({ path: envLocalPath, override: false });
+}
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is not set');
@@ -20,12 +32,13 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 에이전트 생성 (이미 존재하면 업서트)
-  const agent = await prisma.agent.upsert({
-    where: { email: 'jane@unada.ca' },
-    update: {},
-    create: {
-      id: process.env.AGENT_ID ?? randomUUID(),
+  // 에이전트 생성 (기존 Jane 삭제 후 지정된 UUID로 재생성 — 시드는 멱등성 보장)
+  const agentId = process.env.AGENT_ID ?? randomUUID();
+  await prisma.onboardingSession.deleteMany({ where: { agent: { email: 'jane@unada.ca' } } });
+  await prisma.agent.deleteMany({ where: { email: 'jane@unada.ca' } });
+  const agent = await prisma.agent.create({
+    data: {
+      id: agentId,
       name: 'Jane Smith',
       email: 'jane@unada.ca',
       phone: '+1-416-555-0100',
