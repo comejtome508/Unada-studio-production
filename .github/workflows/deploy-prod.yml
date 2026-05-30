@@ -39,6 +39,13 @@ jobs:
           PII_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
           NODE_ENV: test
 
+      # Prisma 마이그레이션은 빌드와 분리해서 prod DB에 명시적 적용
+      - name: Apply DB migrations (prod)
+        working-directory: api
+        run: npm run db:deploy
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
       # Vercel CLI는 레포 루트에서 실행 (Root Directory = api 설정이 Vercel 프로젝트에 있음)
       - name: Deploy to Vercel (Production)
         run: |
