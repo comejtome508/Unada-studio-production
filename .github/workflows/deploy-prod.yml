@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'api/**'
+      - 'vercel.json'
       - '.github/workflows/deploy-prod.yml'
+  workflow_dispatch:  # 수동 트리거 허용
 
 jobs:
   deploy-prod:
