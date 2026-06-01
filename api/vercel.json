@@ -3,6 +3,9 @@
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "regions": ["iad1"],
+  "github": {
+    "enabled": false
+  },
   "headers": [
     {
       "source": "/api/(.*)",
