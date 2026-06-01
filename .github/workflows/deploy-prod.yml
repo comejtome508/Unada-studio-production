@@ -1,17 +1,17 @@
-name: Deploy — Prod (Railway)
+name: Deploy — Production (Vercel)
 
 on:
   push:
     branches: [main]
     paths:
       - 'api/**'
+      - '.github/workflows/deploy-prod.yml'
 
 jobs:
   deploy-prod:
-    name: Deploy to Railway Prod
+    name: Test + Vercel Production Deploy
     runs-on: ubuntu-latest
-    # GitHub Environment에 Required reviewers 설정 권장
-    environment: prod
+    environment: prod  # GitHub Environment — Required reviewers 설정 권장
 
     steps:
       - uses: actions/checkout@v4
@@ -24,39 +24,43 @@ jobs:
           cache-dependency-path: api/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
         working-directory: api
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: api
+        run: npm run db:generate
 
       - name: Run tests (prod gate)
-        run: npm test
         working-directory: api
+        run: npm test
         env:
           DATABASE_URL: 'postgresql://test:test@localhost:5432/test'
           PII_ENCRYPTION_KEY: '0000000000000000000000000000000000000000000000000000000000000000'
           NODE_ENV: test
 
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Run DB migrations (prod) — 먼저 실행
-        run: railway run --service unada-api-prod npm run db:deploy
+      # Prisma 마이그레이션은 빌드와 분리해서 prod DB에 명시적 적용
+      - name: Apply DB migrations (prod)
         working-directory: api
+        run: npm run db:deploy
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
 
-      - name: Deploy to Railway Prod
-        run: railway up --service unada-api-prod --detach
-        working-directory: api
+      # Vercel CLI는 레포 루트에서 실행 (Root Directory = api 설정이 Vercel 프로젝트에 있음)
+      - name: Deploy to Vercel (Production)
+        run: |
+          npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          npx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          npx vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_PROD }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Smoke test — health check
         run: |
-          sleep 15
+          sleep 10
           curl -f ${{ secrets.PROD_API_URL }}/api/health || exit 1
 
       - name: Notify on failure
         if: failure()
-        run: |
-          echo "Prod deploy failed — consider manual rollback via Railway dashboard"
-          echo "Railway dashboard: https://railway.app/dashboard"
+        run: echo "Prod deploy failed — check Vercel dashboard"

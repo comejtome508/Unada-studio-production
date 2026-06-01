@@ -2,6 +2,9 @@
    app.js — Unada Onboarding V2 main application
    ───────────────────────────────────────────────────────── */
 
+/* ── API Config ──────────────────────────────────────────── */
+var API_URL = 'https://unada-studio-production-oxoihhrk2-youngnoh-gohs-projects.vercel.app';
+
 /* ── State ───────────────────────────────────────────────── */
 var state = {
   screenIdx: -1,   // -1=welcome, 0-30=SCREENS[], 31=generating, 32-34=reveal, 35=success
@@ -9,6 +12,8 @@ var state = {
   privacyChecked: false,
   isSubmitting: false,
   submitError: false,
+  token: null,       // onboarding_token from URL ?token=
+  tokenMissing: false,
 };
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -286,14 +291,27 @@ async function signUp() {
   }
 }
 
-/* ── API (mocked for prototype) ─────────────────────────── */
-function submitOnboarding(status) {
-  return new Promise(function(resolve) {
-    // Production: PATCH /api/v1/onboarding/answers
-    setTimeout(function() {
-      resolve({ leadId: 'lead_' + Date.now(), agentName: 'Jane' });
-    }, status === 'complete' ? 1400 : 200);
+/* ── API ─────────────────────────────────────────────────── */
+async function submitOnboarding(status) {
+  if (!state.token) {
+    // 토큰 없이 partial save는 조용히 넘어감 (complete만 에러)
+    if (status === 'complete') throw new Error('no_token');
+    return;
+  }
+  var res = await fetch(API_URL + '/api/v1/onboarding/answers', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + state.token,
+    },
+    body: JSON.stringify({ status: status, answers: state.answers }),
   });
+  if (!res.ok) {
+    var data = {};
+    try { data = await res.json(); } catch(e) {}
+    throw new Error(data.error || 'api_error_' + res.status);
+  }
+  return res.json();
 }
 
 /* ── Status Bar ──────────────────────────────────────────── */
@@ -814,6 +832,28 @@ function render() {
 }
 
 /* ── Init ────────────────────────────────────────────────── */
-document.addEventListener('DOMContentLoaded', function() {
-  render();
+document.addEventListener('DOMContentLoaded', async function() {
+  // URL ?token= 파싱 — 이미 토큰이 있으면 바로 사용
+  var params = new URLSearchParams(window.location.search);
+  var token = params.get('token');
+
+  if (token) {
+    state.token = token;
+    render();
+  } else {
+    // 토큰 없음 → 공개 엔드포인트에서 자동 발급 (unadarealestate.com 직접 진입 시)
+    try {
+      var res = await fetch(API_URL + '/api/v1/start', { method: 'POST' });
+      var data = await res.json();
+      if (data.token) {
+        state.token = data.token;
+        // URL을 토큰으로 업데이트 (새로고침해도 유지)
+        var newUrl = window.location.pathname + '?token=' + data.token;
+        window.history.replaceState(null, '', newUrl);
+      }
+    } catch(e) {
+      console.warn('[Unada] Failed to auto-create session:', e);
+    }
+    render();
+  }
 });
